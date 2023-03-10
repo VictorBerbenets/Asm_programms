@@ -3,34 +3,13 @@
 
 org 100h
 
-.data
-Max_y_size = 25
-left_x     = 10
-left_y     = 24
-width_ram  = 20
-length_ram = 54
-;        Check_params_on_valid:
-;                         mov al, left_y
-;                         mov ah, Max_y_size
-;                         cmp al, ah
-;                         jb  Valid_y_param
 
-;                         mov ah, 09h
-;                         mov dx, offset error
-;                         int 21h
-
-;                         Valid_y_param:
-
-
-;                         ret
-;                         endp
 
 Ramochka:
-        ;call Check_params_on_valid
 
         Left_koords EQU ((25 - left_y)*80 + left_x)*2
-        mov al, 04h
-        mov ah, 01100001b
+        mov al, 03h
+        mov ah, 00100100b
 
         mov cx, length_ram*2
 
@@ -73,14 +52,40 @@ Print_bottom_line:
         cmp cx, 0
         ja Print_bottom_line
 
+Print_Text:
+
+        ; mov dx,  text
+        mov ax, 0b800h
+        mov es, ax
+        xor ax, ax
+        xor si, si
+	mov di, (80*12 + 30)*2
+        mov cx, str_size
+
+        cld
+        Cycle:
+        
+        mov al, [string + si]
+        mov ah, 00000100b
+        stosw
+        inc si
+        loop Cycle
 
         mov ax, 4c00h
-        int 21h
-          
+	int 21h
 
 .data
-     error db "invalid y$"
-     size_err EQU $ - error
+
+Max_y_size = 22
+left_x     = 10
+left_y     = 23
+width_ram  = 20
+length_ram = 54
+
+;;;;;;;;;;;;;;;;;; Text ;;;;;;;;;;;;;;;;;;;;;;;
+string db 'Hello, world!!!'
+str_size EQU $ - string
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 end Ramochka
 
